@@ -5,19 +5,76 @@ on:
     tags:
       - "v*"
   workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to create/update release for (e.g. v0.1.0)"
+        required: false
+        default: "v0.1.0"
 
 permissions:
   contents: write
 
 jobs:
-  build:
-    name: Build (${{ matrix.asset_name }})
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    outputs:
+      tag_name: ${{ steps.tag.outputs.tag_name }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Resolve tag name
+        id: tag
+        shell: bash
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            echo "tag_name=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag_name=${{ inputs.tag || 'v0.1.0' }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publish GitHub Release entry immediately
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.tag_name }}
+          name: "Lekh ${{ steps.tag.outputs.tag_name }}"
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          body: |
+            Precompiled binaries (`lk` and `lekh`) for **macOS (Apple Silicon)**, **Linux (x86_64)**, and **Windows (x86_64)**.
+
+            ### Quick Install (macOS)
+            ```sh
+            tar -xzf lekh-macos-arm64.tar.gz
+            xattr -d com.apple.quarantine lk lekh 2>/dev/null || true
+            chmod +x lk lekh
+            sudo mv lk lekh /usr/local/bin/
+            lk --version
+            ```
+
+            ### Quick Install (Linux)
+            ```sh
+            tar -xzf lekh-linux-x86_64.tar.gz
+            sudo install -m 755 lk lekh /usr/local/bin/
+            lk --version
+            ```
+
+            ### Quick Install (Windows PowerShell)
+            Unzip `lekh-windows-x86_64.zip` and run `.\lk.exe` in Windows Terminal.
+
+            Licensed under the [MIT License](https://github.com/khajumsanjog/Lekh/blob/main/LICENSE).
+
+  build-and-upload:
+    name: Build & Attach (${{ matrix.asset_name }})
+    needs: create-release
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         include:
-          - os: macos-14
+          - os: macos-latest
             target: aarch64-apple-darwin
             asset_name: lekh-macos-arm64
             archive: tar.gz
@@ -40,7 +97,7 @@ jobs:
           targets: ${{ matrix.target }}
 
       - name: Build release binaries
-        run: cargo build --release --locked --target ${{ matrix.target }}
+        run: cargo build --release --target ${{ matrix.target }}
 
       - name: Package Unix archive (.tar.gz)
         if: matrix.archive == 'tar.gz'
@@ -62,48 +119,8 @@ jobs:
           Copy-Item README.md, LICENSE dist/
           Compress-Archive -Path dist/* -DestinationPath "${{ matrix.asset_name }}.zip"
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.asset_name }}
-          path: ${{ matrix.asset_name }}.${{ matrix.archive }}
-
-  publish:
-    name: Publish GitHub Release
-    needs: build
-    if: startsWith(github.ref, 'refs/tags/v')
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download all built archives
-        uses: actions/download-artifact@v4
-        with:
-          path: artifacts
-          merge-multiple: true
-
-      - name: Create GitHub Release
+      - name: Attach binary archive to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          name: "Lekh ${{ github.ref_name }}"
-          generate_release_notes: true
-          files: |
-            artifacts/lekh-macos-arm64.tar.gz
-            artifacts/lekh-linux-x86_64.tar.gz
-            artifacts/lekh-windows-x86_64.zip
-          body: |
-            Precompiled binaries (`lk` and `lekh`) for macOS (Apple Silicon), Linux (x86_64), and Windows (x86_64).
-
-            ### Quick Install (macOS)
-            ```sh
-            tar -xzf lekh-macos-arm64.tar.gz
-            xattr -d com.apple.quarantine lk lekh 2>/dev/null || true
-            chmod +x lk lekh
-            sudo mv lk lekh /usr/local/bin/
-            ```
-
-            ### Quick Install (Linux)
-            ```sh
-            tar -xzf lekh-linux-x86_64.tar.gz
-            sudo install -m 755 lk lekh /usr/local/bin/
-            ```
-
-            Licensed under the [MIT License](https://github.com/khajumsanjog/Lekh/blob/main/LICENSE).
+          tag_name: ${{ needs.create-release.outputs.tag_name }}
+          files: ${{ matrix.asset_name }}.${{ matrix.archive }}
