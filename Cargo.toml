@@ -3,7 +3,10 @@ name = "lekh"
 version = "0.1.0"
 edition = "2021"
 description = "Lekh (lk): a fast, small and safe terminal text editor"
+authors = ["khajumsanjog <sanjog.k@shikhartech.com>"]
 license = "MIT"
+repository = "https://github.com/khajumsanjog/Lekh"
+homepage = "https://khajumsanjog.github.io/Lekh/"
 rust-version = "1.74"
 
 # Two commands from one code base:

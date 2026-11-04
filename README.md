@@ -7,7 +7,12 @@ support, syntax colours, live search, undo/redo and more.
     lekh index.html      # full name
     lk +120 main.rs      # open at line 120
 
-## Build & install
+## Download & Install
+
+### Prebuilt Binaries (Recommended)
+Download the latest archive for your OS from **[GitHub Releases](https://github.com/khajumsanjog/Lekh/releases/latest)**, extract `lk` and `lekh`, and place them on your `PATH`.
+
+### Build from Source
 
     cargo build --release          # binaries: target/release/lekh and target/release/lk
     cargo install --path .         # installs BOTH `lekh` and `lk` onto your PATH
@@ -76,3 +81,7 @@ Add a language = add one `static Lang` in `src/syntax.rs`.
 ## Tests
 
     cargo test        # buffer/undo, secure file I/O, syntax highlighter
+
+## License
+
+Licensed under the [MIT License](LICENSE).
