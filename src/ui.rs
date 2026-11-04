@@ -92,7 +92,7 @@ fn theme_default() -> Theme {
         attr:     Color::DarkYellow,
         var:      Color::AnsiValue(215),
         bg:           Color::Reset,
-        curline_bg:   Color::AnsiValue(236),
+        curline_bg:   Color::Reset,
         gutter_fg:    Color::DarkGrey,
         gutter_cur:   Color::White,
         statusbar_bg: Color::Reset,
@@ -124,12 +124,12 @@ fn theme_dracula() -> Theme {
         attr:     rgb(255, 184, 108),
         var:      rgb(248, 248, 242),
         bg:           rgb(40, 42, 54),
-        curline_bg:   rgb(68, 71, 90),
+        curline_bg:   rgb(50, 53, 68),
         gutter_fg:    rgb(98, 114, 164),
         gutter_cur:   rgb(248, 248, 242),
         statusbar_bg: rgb(68, 71, 90),
         statusbar_fg: rgb(248, 248, 242),
-        selection_bg: rgb(68, 71, 90),
+        selection_bg: rgb(78, 92, 138),
         selection_fg: rgb(248, 248, 242),
         search_bg:    rgb(255, 184, 108),
         search_fg:    rgb(40,  42,  54),
@@ -156,12 +156,12 @@ fn theme_nord() -> Theme {
         attr:     rgb(235, 203, 139),
         var:      rgb(216, 222, 233),
         bg:           rgb(46,  52,  64),
-        curline_bg:   rgb(59,  66,  82),
+        curline_bg:   rgb(53,  60,  74),
         gutter_fg:    rgb(76,  86, 106),
         gutter_cur:   rgb(216, 222, 233),
         statusbar_bg: rgb(59,  66,  82),
         statusbar_fg: rgb(216, 222, 233),
-        selection_bg: rgb(67,  76,  94),
+        selection_bg: rgb(67,  90, 118),
         selection_fg: rgb(216, 222, 233),
         search_bg:    rgb(235, 203, 139),
         search_fg:    rgb(46,  52,  64),
@@ -188,13 +188,13 @@ fn theme_onedark() -> Theme {
         attr:     rgb(229, 192, 123),
         var:      rgb(224, 108, 117),
         bg:           rgb( 40,  44,  52),
-        curline_bg:   rgb( 44,  47,  55),
+        curline_bg:   rgb( 46,  50,  60),
         gutter_fg:    rgb( 92,  99, 112),
         gutter_cur:   rgb(171, 178, 191),
         statusbar_bg: rgb( 33,  37,  43),
         statusbar_fg: rgb(171, 178, 191),
-        selection_bg: rgb( 62,  68,  81),
-        selection_fg: rgb(171, 178, 191),
+        selection_bg: rgb( 62,  82, 114),
+        selection_fg: rgb(255, 255, 255),
         search_bg:    rgb(229, 192, 123),
         search_fg:    rgb( 40,  44,  52),
         bracket_bg:   rgb(0, 200, 200),
@@ -220,13 +220,13 @@ fn theme_gruvbox() -> Theme {
         attr:     rgb(214, 93,  14),
         var:      rgb(131, 165, 152),
         bg:           rgb( 40,  40,  40),
-        curline_bg:   rgb( 60,  56,  54),
+        curline_bg:   rgb( 50,  48,  47),
         gutter_fg:    rgb(146, 131, 116),
         gutter_cur:   rgb(235, 219, 178),
         statusbar_bg: rgb( 80,  73,  69),
         statusbar_fg: rgb(235, 219, 178),
-        selection_bg: rgb( 80,  73,  69),
-        selection_fg: rgb(235, 219, 178),
+        selection_bg: rgb(102,  92,  84),
+        selection_fg: rgb(251, 241, 199),
         search_bg:    rgb(250, 189,  47),
         search_fg:    rgb( 40,  40,  40),
         bracket_bg:   rgb(0, 200, 200),
@@ -344,24 +344,41 @@ impl Editor {
 
         if self.help {
             for r in 0..th {
-                queue!(out, MoveTo(0, r as u16), ResetColor)?;
-                if let Some(l) = HELP.get(r) {
-                    queue!(out, Print(fit(l, w)))?;
-                }
-                queue!(out, Clear(ClearType::UntilNewLine))?;
+                let l = HELP.get(r).copied().unwrap_or("");
+                let shown = fit(l, w);
+                let pad = w.saturating_sub(width_of(&shown));
+                queue!(
+                    out,
+                    MoveTo(0, r as u16),
+                    SetAttribute(Attribute::Reset),
+                    SetForegroundColor(self.theme.normal),
+                    SetBackgroundColor(self.theme.bg),
+                    Print(&shown),
+                    Print(" ".repeat(pad)),
+                    Clear(ClearType::UntilNewLine),
+                    ResetColor
+                )?;
             }
         } else {
-            // draw background if theme has one
+            let sb_adjust = if show_scrollbar { 1 } else { 0 };
+            let fill_w = w.saturating_sub(sb_adjust);
             for r in 0..th {
                 queue!(out, MoveTo(0, r as u16), ResetColor)?;
                 let y = self.top + r;
                 if y < self.buf.lines.len() {
                     self.draw_row(out, y, w, gutter)?;
                 } else {
-                    // empty line - still paint curline bg if applicable (won't happen, just reset)
-                    queue!(out, SetBackgroundColor(self.theme.bg))?;
+                    // Paint full empty row with theme background so True-Color themes cover the canvas seamlessly
+                    queue!(
+                        out,
+                        SetBackgroundColor(self.theme.bg),
+                        Print(" ".repeat(fill_w))
+                    )?;
+                    if !show_scrollbar {
+                        queue!(out, Clear(ClearType::UntilNewLine))?;
+                    }
+                    queue!(out, ResetColor)?;
                 }
-                queue!(out, ResetColor, Clear(ClearType::UntilNewLine))?;
             }
 
             // Draw scrollbar on the right edge if needed
@@ -442,35 +459,63 @@ impl Editor {
         }
 
         // message / prompt line
-        queue!(out, MoveTo(0, (h - 1) as u16), ResetColor, Clear(ClearType::CurrentLine))?;
+        queue!(
+            out,
+            MoveTo(0, (h - 1) as u16),
+            SetAttribute(Attribute::Reset),
+            SetBackgroundColor(self.theme.bg),
+            SetForegroundColor(self.theme.normal)
+        )?;
         let mut cursor = (gutter + rx.saturating_sub(self.left), self.cy.saturating_sub(self.top));
+        let max_msg_w = w.saturating_sub(1);
+        let msg_used;
         if let Some(p) = &self.prompt {
             let input: String = p.input.iter().map(|&c| if c.is_control() { '?' } else { c }).collect();
-            let label_w = width_of(&p.label);
-            let avail = w.saturating_sub(label_w + 1);
+            let label = fit(&p.label, max_msg_w);
+            let label_w = width_of(&label);
+            let avail = max_msg_w.saturating_sub(label_w);
             // show the tail of long input
-            let mut shown = input.clone();
+            let mut shown = input;
             while width_of(&shown) > avail {
                 shown.remove(0);
             }
+            let shown_w = width_of(&shown);
             queue!(
                 out,
                 SetAttribute(Attribute::Bold),
-                Print(fit(&p.label, w)),
+                Print(&label),
                 SetAttribute(Attribute::Reset),
+                SetBackgroundColor(self.theme.bg),
+                SetForegroundColor(self.theme.normal),
                 Print(&shown)
             )?;
-            cursor = ((label_w + width_of(&shown)).min(w - 1), h - 1);
+            msg_used = label_w + shown_w;
+            cursor = ((label_w + shown_w).min(w - 1), h - 1);
         } else if !self.msg.is_empty() {
-            queue!(out, SetAttribute(Attribute::Bold), Print(fit(&self.msg, w)), SetAttribute(Attribute::Reset))?;
-        } else {
+            let shown = fit(&self.msg, max_msg_w);
+            msg_used = width_of(&shown);
             queue!(
                 out,
-                SetForegroundColor(Color::DarkGrey),
-                Print(fit(" ^S Save  ^Q Quit  ^F Find  ^Z Undo  ^T Theme  ^G Help", w)),
-                ResetColor
+                SetAttribute(Attribute::Bold),
+                Print(&shown),
+                SetAttribute(Attribute::Reset),
+                SetBackgroundColor(self.theme.bg)
             )?;
+        } else {
+            let hint_fg = if matches!(self.theme.bg, Color::Reset) {
+                Color::DarkGrey
+            } else {
+                self.theme.comment
+            };
+            let shown = fit(" ^S Save  ^Q Quit  ^F Find  ^Z Undo  ^T Theme  ^G Help", max_msg_w);
+            msg_used = width_of(&shown);
+            queue!(out, SetForegroundColor(hint_fg), Print(&shown))?;
         }
+        let msg_pad = max_msg_w.saturating_sub(msg_used);
+        if msg_pad > 0 {
+            queue!(out, Print(" ".repeat(msg_pad)))?;
+        }
+        queue!(out, Clear(ClearType::UntilNewLine), ResetColor)?;
 
         if self.help {
             cursor = (0, 0);
@@ -519,6 +564,7 @@ impl Editor {
         let left = self.left;
         let right = left + text_w;
         let mut col = 0usize;
+        let mut drawn = 0usize;
         let mut cur = DEFAULT;
         let mut hit_i = 0usize;
 
@@ -539,7 +585,7 @@ impl Editor {
             let is_bracket = bracket_match == Some((y, i));
             let tok = toks.get(i).copied().unwrap_or(Tok::Normal);
             let want = if suspicious(c) {
-                Style { fg: Color::Red, bg: Color::Reset, rev: true }
+                Style { fg: Color::Red, bg: curline_bg, rev: true }
             } else if in_sel {
                 Style { fg: self.theme.selection_fg, bg: self.theme.selection_bg, rev: false }
             } else if is_bracket {
@@ -560,33 +606,45 @@ impl Editor {
                 // wide char or tab cut by the screen edge: draw only the visible part as spaces
                 let vs = col.max(left);
                 let ve = (col + cw).min(right);
-                queue!(out, Print(" ".repeat(ve.saturating_sub(vs))))?;
+                let n = ve.saturating_sub(vs);
+                queue!(out, Print(" ".repeat(n)))?;
+                drawn += n;
             } else if c == '\t' {
                 queue!(out, Print(" ".repeat(cw)))?;
+                drawn += cw;
             } else if suspicious(c) {
                 queue!(out, Print('?'))?;
+                drawn += 1;
             } else if c.is_control() {
                 let ch = if (c as u32) < 0x80 { ((c as u8) ^ 0x40) as char } else { '?' };
                 queue!(out, Print('^'), Print(ch))?;
+                drawn += 2;
             } else {
                 queue!(out, Print(c))?;
+                drawn += cw;
             }
             col += cw;
         }
         // Show selected line break as one highlighted cell.
-        if s1 == usize::MAX && col >= left && col < right {
+        if s1 == usize::MAX && col >= left && col < right && drawn < text_w {
             queue!(
                 out,
                 SetAttribute(Attribute::Reset),
                 SetBackgroundColor(self.theme.selection_bg),
-                Print(' '),
-                SetAttribute(Attribute::Reset)
+                Print(' ')
             )?;
+            drawn += 1;
         }
-        // Paint curline background to end of line
-        if is_curline {
-            queue!(out, SetBackgroundColor(curline_bg))?;
+        // Fill the remainder of the row with curline_bg so theme backgrounds never look like jagged text selections.
+        let rem = text_w.saturating_sub(drawn);
+        queue!(out, SetAttribute(Attribute::Reset), SetBackgroundColor(curline_bg))?;
+        if rem > 0 {
+            queue!(out, Print(" ".repeat(rem)))?;
         }
+        if !self.scrollbar {
+            queue!(out, Clear(ClearType::UntilNewLine))?;
+        }
+        queue!(out, ResetColor)?;
         Ok(())
     }
 }

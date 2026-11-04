@@ -1167,17 +1167,17 @@ lk /etc/hosts</code></pre>
 
       <!-- Windows Panel -->
       <div class="os-panel" id="panel-win" role="tabpanel" aria-labelledby="tab-win" hidden>
-        <h3>Run on Windows (Windows Terminal / PowerShell)</h3>
-        <p>1. Download the Windows <code>.zip</code> archive from <a href="https://github.com/khajumsanjog/Lekh/releases/latest" target="_blank" rel="noopener">GitHub Releases</a>, unzip <code>lk.exe</code> and <code>lekh.exe</code>, and run inside <strong>Windows Terminal</strong>:</p>
+        <h3>Run on Windows (PowerShell, Windows Terminal &amp; cmd.exe)</h3>
+        <p><strong>Option 1 — One-Line PowerShell Setup (Recommended, no SmartScreen popup):</strong> Installs <strong>both</strong> <code>lk</code> and <code>lekh</code> onto your Windows User <code>PATH</code> automatically without needing Rust or Cargo:</p>
         <div class="cmd-block">
-          <pre tabindex="0"><code id="cmd-win"># In PowerShell inside the extracted folder:
-.\lk.exe notes.md
+          <pre tabindex="0"><code id="cmd-win">irm https://github.com/khajumsanjog/Lekh/releases/latest/download/install.ps1 | iex
 
-# Optional: copy into your user bin folder on PATH:
-New-Item -ItemType Directory -Force "$HOME\.local\bin" | Out-Null
-Copy-Item .\lk.exe, .\lekh.exe "$HOME\.local\bin\"</code></pre>
-          <button type="button" class="copy-btn" data-copy="cmd-win" aria-label="Copy Windows install commands">Copy</button>
+# Now run from ANY folder in PowerShell or cmd.exe:
+lk index.html
+lekh index.html</code></pre>
+          <button type="button" class="copy-btn" data-copy="cmd-win" aria-label="Copy Windows install command">Copy</button>
         </div>
+        <p style="margin-block-end:0"><strong>Option 2 — Graphical Setup Installer:</strong> Download and run <a href="https://github.com/khajumsanjog/Lekh/releases/latest" target="_blank" rel="noopener"><code>lekh-windows-x86_64-setup.exe</code> on GitHub Releases</a> to install both <code>lk.exe</code> and <code>lekh.exe</code> into <code>%LOCALAPPDATA%\Programs\Lekh</code> and register them on your <code>PATH</code>.</p>
       </div>
 
       <!-- Cargo Source Panel -->

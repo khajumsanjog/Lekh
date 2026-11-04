@@ -9,8 +9,12 @@ support, syntax colours, live search, undo/redo and more.
 
 ## Download & Install
 
-### Prebuilt Binaries (Recommended)
-Download the latest archive for your OS from **[GitHub Releases](https://github.com/khajumsanjog/Lekh/releases/latest)**, extract `lk` and `lekh`, and place them on your `PATH`.
+### Prebuilt Binaries & Windows Setup (Recommended — No Cargo Needed)
+* **Windows (PowerShell & `cmd.exe`):** Run one line in PowerShell to install both `lk` and `lekh` onto your User `PATH` (or download **`lekh-windows-x86_64-setup.exe`** from **[GitHub Releases](https://github.com/khajumsanjog/Lekh/releases/latest)**):
+
+      irm https://github.com/khajumsanjog/Lekh/releases/latest/download/install.ps1 | iex
+
+* **macOS & Linux:** Download the latest `.tar.gz` archive for your OS from **[GitHub Releases](https://github.com/khajumsanjog/Lekh/releases/latest)**, extract `lk` and `lekh`, and move them into `/usr/local/bin`.
 
 ### Build from Source
 

@@ -42,8 +42,17 @@ jobs:
           draft: false
           prerelease: false
           generate_release_notes: true
+          files: install.ps1
           body: |
-            Precompiled binaries (`lk` and `lekh`) for **macOS (Apple Silicon)**, **Linux (x86_64)**, and **Windows (x86_64)**.
+            Precompiled binaries (`lk` and `lekh`) and installers for **Windows (x86_64)**, **macOS (Apple Silicon)**, and **Linux (x86_64)**.
+
+            ### Quick Setup on Windows (PowerShell & `cmd.exe` — No Cargo Needed)
+            **Option 1 — One-Line PowerShell Setup (Recommended, avoids browser SmartScreen):**
+            ```powershell
+            irm https://github.com/khajumsanjog/Lekh/releases/latest/download/install.ps1 | iex
+            ```
+            **Option 2 — Windows Installer (`lekh-windows-x86_64-setup.exe`):**
+            Download and run **`lekh-windows-x86_64-setup.exe`** below. It installs **both** `lk.exe` and `lekh.exe` and automatically adds them to your Windows `PATH` so you can run `lk index.html` or `lekh index.html` in PowerShell, Windows Terminal, and `cmd.exe`.
 
             ### Quick Install (macOS)
             ```sh
@@ -60,9 +69,6 @@ jobs:
             sudo install -m 755 lk lekh /usr/local/bin/
             lk --version
             ```
-
-            ### Quick Install (Windows PowerShell)
-            Unzip `lekh-windows-x86_64.zip` and run `.\lk.exe` in Windows Terminal.
 
             Licensed under the [MIT License](https://github.com/khajumsanjog/Lekh/blob/main/LICENSE).
 
@@ -91,13 +97,35 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Enable MSVC SDK tools (rc.exe & signtool.exe) on Windows
+        if: matrix.os == 'windows-latest'
+        uses: ilammy/msvc-dev-cmd@v1
+
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
 
       - name: Build release binaries
+        env:
+          LEKH_PUBLISHER: "khajumsanjog"
         run: cargo build --release --target ${{ matrix.target }}
+
+      - name: Sign Windows binaries (if WINDOWS_PFX_BASE64 secret is configured)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        env:
+          PFX_B64: ${{ secrets.WINDOWS_PFX_BASE64 }}
+          PFX_PASS: ${{ secrets.WINDOWS_PFX_PASSWORD }}
+        run: |
+          if (-not [string]::IsNullOrWhiteSpace($env:PFX_B64)) {
+            $pfxPath = Join-Path $env:RUNNER_TEMP 'codesign.pfx'
+            [IO.File]::WriteAllBytes($pfxPath, [Convert]::FromBase64String($env:PFX_B64))
+            signtool.exe sign /f $pfxPath /p $env:PFX_PASS /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 `
+              "target/${{ matrix.target }}/release/lk.exe" `
+              "target/${{ matrix.target }}/release/lekh.exe"
+            Remove-Item -Force $pfxPath -ErrorAction SilentlyContinue
+          }
 
       - name: Package Unix archive (.tar.gz)
         if: matrix.archive == 'tar.gz'
@@ -109,18 +137,45 @@ jobs:
           cp README.md LICENSE dist/
           tar -czf "${{ matrix.asset_name }}.tar.gz" -C dist lk lekh README.md LICENSE
 
-      - name: Package Windows archive (.zip)
+      - name: Package Windows archive (.zip) & Setup Installer (.exe)
         if: matrix.archive == 'zip'
         shell: pwsh
+        env:
+          PFX_B64: ${{ secrets.WINDOWS_PFX_BASE64 }}
+          PFX_PASS: ${{ secrets.WINDOWS_PFX_PASSWORD }}
         run: |
           New-Item -ItemType Directory -Force -Path dist | Out-Null
           Copy-Item "target/${{ matrix.target }}/release/lk.exe" dist/
           Copy-Item "target/${{ matrix.target }}/release/lekh.exe" dist/
-          Copy-Item README.md, LICENSE dist/
-          Compress-Archive -Path dist/* -DestinationPath "${{ matrix.asset_name }}.zip"
+          Copy-Item install.ps1, README.md, LICENSE dist/
+          Compress-Archive -Path dist/* -DestinationPath "${{ matrix.asset_name }}.zip" -Force
 
-      - name: Attach binary archive to GitHub Release
+          $iscc = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) {
+            choco install innosetup -y --no-progress
+          }
+          & $iscc "installer\windows\lekh.iss"
+
+          if (-not [string]::IsNullOrWhiteSpace($env:PFX_B64)) {
+            $pfxPath = Join-Path $env:RUNNER_TEMP 'codesign.pfx'
+            [IO.File]::WriteAllBytes($pfxPath, [Convert]::FromBase64String($env:PFX_B64))
+            signtool.exe sign /f $pfxPath /p $env:PFX_PASS /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 `
+              "dist-installer\lekh-windows-x86_64-setup.exe"
+            Remove-Item -Force $pfxPath -ErrorAction SilentlyContinue
+          }
+
+      - name: Attach Unix archive to GitHub Release
+        if: matrix.archive == 'tar.gz'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.create-release.outputs.tag_name }}
-          files: ${{ matrix.asset_name }}.${{ matrix.archive }}
+          files: ${{ matrix.asset_name }}.tar.gz
+
+      - name: Attach Windows Installer & Zip to GitHub Release
+        if: matrix.archive == 'zip'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.create-release.outputs.tag_name }}
+          files: |
+            dist-installer/lekh-windows-x86_64-setup.exe
+            ${{ matrix.asset_name }}.zip

@@ -1,6 +1,6 @@
 [package]
 name = "lekh"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "Lekh (lk): a fast, small and safe terminal text editor"
 authors = ["khajumsanjog <sanjog.k@shikhartech.com>"]
