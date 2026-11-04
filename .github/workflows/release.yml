@@ -1,0 +1,109 @@
+name: Release Binaries
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build (${{ matrix.asset_name }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-14
+            target: aarch64-apple-darwin
+            asset_name: lekh-macos-arm64
+            archive: tar.gz
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            asset_name: lekh-linux-x86_64
+            archive: tar.gz
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            asset_name: lekh-windows-x86_64
+            archive: zip
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Build release binaries
+        run: cargo build --release --locked --target ${{ matrix.target }}
+
+      - name: Package Unix archive (.tar.gz)
+        if: matrix.archive == 'tar.gz'
+        shell: bash
+        run: |
+          mkdir -p dist
+          cp "target/${{ matrix.target }}/release/lk" dist/
+          cp "target/${{ matrix.target }}/release/lekh" dist/
+          cp README.md LICENSE dist/
+          tar -czf "${{ matrix.asset_name }}.tar.gz" -C dist lk lekh README.md LICENSE
+
+      - name: Package Windows archive (.zip)
+        if: matrix.archive == 'zip'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          Copy-Item "target/${{ matrix.target }}/release/lk.exe" dist/
+          Copy-Item "target/${{ matrix.target }}/release/lekh.exe" dist/
+          Copy-Item README.md, LICENSE dist/
+          Compress-Archive -Path dist/* -DestinationPath "${{ matrix.asset_name }}.zip"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.asset_name }}
+          path: ${{ matrix.asset_name }}.${{ matrix.archive }}
+
+  publish:
+    name: Publish GitHub Release
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all built archives
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "Lekh ${{ github.ref_name }}"
+          generate_release_notes: true
+          files: |
+            artifacts/lekh-macos-arm64.tar.gz
+            artifacts/lekh-linux-x86_64.tar.gz
+            artifacts/lekh-windows-x86_64.zip
+          body: |
+            Precompiled binaries (`lk` and `lekh`) for macOS (Apple Silicon), Linux (x86_64), and Windows (x86_64).
+
+            ### Quick Install (macOS)
+            ```sh
+            tar -xzf lekh-macos-arm64.tar.gz
+            xattr -d com.apple.quarantine lk lekh 2>/dev/null || true
+            chmod +x lk lekh
+            sudo mv lk lekh /usr/local/bin/
+            ```
+
+            ### Quick Install (Linux)
+            ```sh
+            tar -xzf lekh-linux-x86_64.tar.gz
+            sudo install -m 755 lk lekh /usr/local/bin/
+            ```
+
+            Licensed under the [MIT License](https://github.com/khajumsanjog/Lekh/blob/main/LICENSE).
