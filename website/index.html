@@ -8,7 +8,7 @@
   <title>Lekh (lk) — A fast, safe terminal text editor in Rust</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+Devanagari:wght@800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Fraunces:opsz,wght@9..144,700;9..144,900&family=Tiro+Devanagari+Hindi&display=swap" rel="stylesheet">
   <style>
     @layer reset, tokens, base, components, utilities;
 
@@ -39,10 +39,9 @@
         --bar-ink: #f6efe0;
         --shadow: #231a14;
 
-        --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        --font-display: "Space Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-        --font-deva: "Noto Sans Devanagari", "Kohinoor Devanagari", sans-serif;
+        --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+        --font-serif: "Fraunces", Georgia, serif;
+        --font-deva: "Tiro Devanagari Hindi", "Noto Serif Devanagari", serif;
       }
 
       :root[data-paper="night"] {
@@ -76,10 +75,10 @@
         background-image: radial-gradient(var(--line) 1px, transparent 1px);
         background-size: 22px 22px;
         color: var(--ink);
-        font-family: var(--font-sans);
+        font-family: var(--font-mono);
         font-size-adjust: from-font;
-        font-size: 1.02rem;
-        line-height: 1.65;
+        font-size: 1rem;
+        line-height: 1.6;
         text-align: start;
         padding-block-end: calc(5.5rem + env(safe-area-inset-bottom, 0px));
       }
@@ -89,17 +88,23 @@
         color: var(--acc-ink);
       }
 
-      h1, h2, h3 {
-        font-family: var(--font-display);
+      h1, h2 {
+        font-family: var(--font-serif);
+        font-weight: 900;
         font-size-adjust: cap-height from-font;
-        line-height: 1.15;
-        letter-spacing: -0.025em;
+        line-height: 1.1;
+        text-wrap: balance;
+      }
+
+      h3 {
+        font-family: var(--font-mono);
+        font-weight: 700;
+        line-height: 1.35;
         text-wrap: balance;
       }
 
       h2 {
-        font-size: clamp(1.8rem, 1.3rem + 2.2vw, 2.6rem);
-        font-weight: 700;
+        font-size: clamp(1.75rem, 5vw, 2.625rem);
         margin-block-end: 0.5rem;
       }
 
@@ -107,13 +112,16 @@
         color: var(--acc);
       }
 
+      [lang="hi"] {
+        font-family: var(--font-deva);
+      }
+
       @supports not (font-size-adjust: from-font) {
         body {
-          line-height: 1.68;
+          line-height: 1.65;
         }
-        code, kbd {
-          font-size: 0.88em;
-          line-height: 1.5;
+        h1, h2 {
+          line-height: 1.15;
         }
       }
 
@@ -237,7 +245,8 @@
       }
       .deva-mark {
         font-family: var(--font-deva);
-        font-size: clamp(5.2rem, 3rem + 13vw, 10.5rem);
+        font-weight: 400;
+        font-size: clamp(5.625rem, 22vw, 12.5rem);
         line-height: 1;
         color: var(--acc);
         display: inline-block;
@@ -247,10 +256,10 @@
       .deva-mark::after {
         content: "" / "";
         position: absolute;
-        inset-inline-end: -0.13em;
-        inset-block-start: 0.16em;
+        inset-inline-end: -0.12em;
+        inset-block-start: 0.18em;
         inline-size: 0.07em;
-        block-size: 0.64em;
+        block-size: 0.62em;
         background: var(--ink);
         animation: caret-blink 1s steps(1) infinite;
       }
@@ -259,10 +268,11 @@
       }
 
       .hero-title {
-        font-size: clamp(2.1rem, 1.5rem + 3.5vw, 3.6rem);
+        font-size: clamp(2.125rem, 7vw, 3.5rem);
         font-weight: 900;
-        letter-spacing: -0.03em;
-        margin-block: 0.35rem 0.5rem;
+        line-height: 1.05;
+        letter-spacing: -1px;
+        margin-block: 0.5rem 0.75rem;
       }
       .etymology {
         display: inline-block;
@@ -363,11 +373,11 @@
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
-        font-family: var(--font-sans);
+        font-family: var(--font-mono);
         font-weight: 700;
-        font-size: 0.95rem;
+        font-size: 0.9375rem;
         min-block-size: 2.75rem;
-        padding: 0.65rem 1.25rem;
+        padding: 0.75rem 1.375rem;
         border: 2px solid var(--ink);
         border-radius: 12px;
         background: var(--acc);
@@ -375,7 +385,7 @@
         text-decoration: none;
         cursor: pointer;
         box-shadow: 4px 4px 0 var(--shadow);
-        transition: transform 0.12s ease, box-shadow 0.12s ease;
+        transition: transform 0.1s ease, box-shadow 0.1s ease;
       }
       .btn:hover {
         color: var(--acc-ink);
@@ -613,7 +623,7 @@
         margin-block-end: 0.75rem;
       }
       .fcard h3 {
-        font-size: 1.2rem;
+        font-size: 1.0625rem;
         margin-block-end: 0.4rem;
       }
       .fcard p {
@@ -743,8 +753,8 @@
         margin-block-end: 1rem;
       }
       .os-tab {
-        font-family: var(--font-sans);
-        font-size: 0.9rem;
+        font-family: var(--font-mono);
+        font-size: 0.875rem;
         font-weight: 700;
         min-block-size: 2.5rem;
         padding: 0.45rem 1rem;
@@ -801,15 +811,15 @@
         flex: 1;
       }
       .copy-btn {
-        font-family: var(--font-sans);
+        font-family: var(--font-mono);
         font-weight: 700;
-        font-size: 0.8rem;
+        font-size: 0.8125rem;
         min-block-size: 2rem;
-        padding: 0.35rem 0.75rem;
+        padding: 0.5rem 0.875rem;
         background: var(--acc);
         color: #ffffff;
         border: 0;
-        border-radius: 6px;
+        border-radius: 8px;
         cursor: pointer;
         flex-shrink: 0;
       }
@@ -873,8 +883,9 @@
         border-block-end: 1px dashed var(--line);
       }
       thead th {
-        font-family: var(--font-display);
-        font-size: 1rem;
+        font-family: var(--font-serif);
+        font-size-adjust: from-font;
+        font-size: 1.125rem;
         border-block-end: 2px solid var(--ink);
       }
       .highlight-col {
