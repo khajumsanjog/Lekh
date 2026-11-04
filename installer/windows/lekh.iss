@@ -4,7 +4,7 @@
 ; PowerShell, Windows Terminal, and cmd.exe immediately without Cargo.
 
 #define MyAppName "Lekh"
-#define MyAppVersion "0.1.1"
+#define MyAppVersion "0.1.2"
 #define MyAppPublisher "khajumsanjog"
 #define MyAppURL "https://github.com/khajumsanjog/Lekh"
 
@@ -39,6 +39,8 @@ VersionInfoProductVersion={#MyAppVersion}
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Files]
+
+
 Source: "..\..\dist\lk.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\..\dist\lekh.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\..\dist\README.md"; DestDir: "{app}"; Flags: ignoreversion

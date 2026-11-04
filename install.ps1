@@ -58,3 +58,4 @@ Write-Host "Lekh installed successfully to $InstallDir!" -ForegroundColor Green
 Write-Host "You can now run BOTH commands in PowerShell, Windows Terminal, and cmd.exe:" -ForegroundColor Yellow
 Write-Host "    lk index.html"
 Write-Host "    lekh index.html"
+
