@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="color-scheme" content="light">
-  <meta name="description" content="Lekh (lk) — A small, fast, crash-proof terminal text editor written in 100% safe Rust. Nano's friendliness with syntax highlighting, 5 True-Color themes, mouse support, and atomic saves.">
-  <title>Lekh (lk) — A fast, safe terminal text editor in Rust</title>
+  <meta name="description" content="Lekh — A small, fast, crash-proof terminal text editor written in 100% safe Rust. Nano's friendliness with syntax highlighting, 5 True-Color themes, mouse support, and atomic saves.">
+  <title>Lekh — a fast, safe terminal text editor in Rust</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Fraunces:opsz,wght@9..144,700;9..144,900&family=Tiro+Devanagari+Hindi&display=swap" rel="stylesheet">
@@ -183,64 +183,14 @@
       }
 
       .wrap {
-        max-inline-size: 64rem;
+        max-inline-size: 60rem;
         margin-inline: auto;
         padding-inline: 1.25rem;
       }
 
-      /* Top Masthead Strip */
-      .masthead {
-        border-block-end: 2px solid var(--ink);
-        background: var(--panel);
-        padding-block: 0.65rem;
-      }
-      .masthead-inner {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        justify-content: space-between;
-        gap: 0.75rem;
-        font-size: 0.85rem;
-      }
-      .masthead-brand {
-        display: flex;
-        align-items: center;
-        gap: 0.6rem;
-        font-weight: 700;
-        text-decoration: none;
-        color: var(--ink);
-      }
-      .stamp-badge {
-        display: inline-block;
-        background: var(--acc2-soft);
-        color: var(--acc2);
-        border: 1.5px solid var(--acc2);
-        border-radius: 6px;
-        padding: 0.1rem 0.5rem;
-        font-size: 0.78rem;
-        font-weight: 700;
-      }
-      .masthead-links {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 1rem;
-        list-style: none;
-        padding: 0;
-      }
-      .masthead-links a {
-        color: var(--ink);
-        text-decoration: none;
-        font-weight: 600;
-      }
-      .masthead-links a:hover {
-        color: var(--acc);
-        text-decoration: underline;
-      }
-
       /* Hero */
       .hero {
-        padding-block: 3rem 2rem;
+        padding-block: 3rem 1.5rem;
         text-align: center;
       }
       .deva-mark {
@@ -270,25 +220,15 @@
       .hero-title {
         font-size: clamp(2.125rem, 7vw, 3.5rem);
         font-weight: 900;
-        line-height: 1.05;
+        line-height: 1;
         letter-spacing: -1px;
         margin-block: 0.5rem 0.75rem;
       }
-      .etymology {
-        display: inline-block;
-        font-size: 0.88rem;
-        color: var(--mute);
-        background: var(--panel);
-        border: 1.5px dashed var(--ink);
-        border-radius: 99px;
-        padding: 0.2rem 0.95rem;
-        margin-block-end: 1.1rem;
-      }
       .hero-lead {
-        font-size: clamp(1rem, 0.92rem + 0.5vw, 1.18rem);
-        max-inline-size: 58ch;
+        font-size: clamp(0.95rem, 2.4vw, 1.1875rem);
+        max-inline-size: 36rem;
         margin-inline: auto;
-        margin-block-end: 1.4rem;
+        margin-block-end: 1.5rem;
         color: var(--mute);
       }
       .hero-lead strong {
@@ -299,69 +239,25 @@
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
-        gap: 0.45rem;
+        gap: 0.4rem;
         list-style: none;
         padding: 0;
-        margin-block-end: 1.8rem;
+        margin-block-end: 1.15rem;
       }
       .pill {
         border: 2px solid var(--ink);
         border-radius: 99px;
-        padding: 0.2rem 0.8rem;
-        font-size: 0.82rem;
-        font-weight: 600;
+        padding: 0.15rem 0.75rem;
+        font-size: 0.8125rem;
         background: var(--panel);
-        box-shadow: 2px 2px 0 var(--shadow);
       }
 
-      /* Release Ticket Callout Box in Hero */
-      .release-ticket {
-        max-inline-size: 46rem;
-        margin-inline: auto;
-        background: var(--panel);
-        border: 2px solid var(--ink);
-        border-radius: 16px;
-        box-shadow: 6px 6px 0 var(--shadow);
-        padding: 1.35rem 1.5rem;
-        text-align: start;
-        position: relative;
-      }
-      .ticket-top {
+      .hero-btns {
         display: flex;
         flex-wrap: wrap;
-        align-items: center;
-        justify-content: space-between;
+        justify-content: center;
         gap: 0.75rem;
-        padding-block-end: 0.9rem;
-        margin-block-end: 1rem;
-        border-block-end: 2px dashed var(--line);
-      }
-      .ticket-kicker {
-        font-size: 0.82rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        color: var(--acc2);
-      }
-      .ticket-os-detected {
-        font-size: 0.82rem;
-        color: var(--mute);
-      }
-      .ticket-body {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        justify-content: space-between;
-        gap: 1rem;
-      }
-      .ticket-copy h2 {
-        font-size: 1.45rem;
-        margin-block-end: 0.2rem;
-      }
-      .ticket-copy p {
-        font-size: 0.9rem;
-        color: var(--mute);
-        max-inline-size: 42ch;
+        margin-block-start: 1.1rem;
       }
       .btn-group {
         display: flex;
@@ -393,7 +289,7 @@
         box-shadow: 2px 2px 0 var(--shadow);
       }
       .btn.secondary {
-        background: var(--bg);
+        background: var(--panel);
         color: var(--ink);
       }
       .btn.secondary:hover {
@@ -1019,65 +915,28 @@
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
 
-  <header class="masthead">
-    <div class="wrap masthead-inner">
-      <a class="masthead-brand" href="#">
-        <span lang="hi" aria-hidden="true">लेख</span>
-        <span>Lekh (<code>lk</code>)</span>
-        <span class="stamp-badge">v0.1.0 · MIT</span>
-      </a>
-      <nav aria-label="Top navigation">
-        <ul class="masthead-links">
-          <li><a href="#features">What it does</a></li>
-          <li><a href="#how-it-works">How it works</a></li>
-          <li><a href="#download">Download</a></li>
-          <li><a href="#usage">How to use</a></li>
-          <li><a href="https://github.com/khajumsanjog/Lekh/releases" target="_blank" rel="noopener">Releases ↗</a></li>
-          <li><a href="https://github.com/khajumsanjog/Lekh" target="_blank" rel="noopener">GitHub ↗</a></li>
-        </ul>
-      </nav>
-    </div>
-  </header>
-
   <main id="main-content" class="wrap" tabindex="-1">
     <!-- HERO -->
-    <div class="hero">
+    <header class="hero">
       <div class="deva-mark" lang="hi" aria-hidden="true">लेख</div>
-      <h1 class="hero-title">Lekh — the terminal editor that respects your fingers &amp; your files.</h1>
-      <p class="etymology"><strong lang="hi">लेख</strong> (<em>lekh</em>) · “writing, manuscript, inscription” · command: <code>lk</code> or <code>lekh</code></p>
+      <h1 class="hero-title">Lekh</h1>
       <p class="hero-lead">
-        <strong>Nano’s zero-curve friendliness, forged with Rust’s memory-safe muscle.</strong>
-        Opens instantly, highlights 16 languages with 5 True-Color themes, supports mouse &amp; live search, and never leaves a half-written file on disk.
+        <strong>Nano’s friendliness, Rust’s muscle.</strong>
+        A tiny terminal text editor that’s easy on day one and surprisingly powerful on day one hundred.
       </p>
 
       <ul class="pill-row" role="list" aria-label="Key highlights">
-        <li class="pill">🦀 100% Safe Rust (<code>#![forbid(unsafe_code)]</code>)</li>
-        <li class="pill">⚡ 0% CPU when idle</li>
-        <li class="pill">🪶 Only 2 crates</li>
-        <li class="pill">🎨 5 True-Color Themes</li>
-        <li class="pill">🔒 Crash-Proof Atomic Saves</li>
+        <li class="pill">🦀 built in Rust</li>
+        <li class="pill">⚡ instant start</li>
+        <li class="pill">🪶 featherweight</li>
+        <li class="pill">🎨 5 themes</li>
+        <li class="pill">🔒 atomic saves</li>
       </ul>
 
-      <!-- PROMINENT GITHUB RELEASE CALLOUT -->
-      <div class="release-ticket" aria-label="Download latest release">
-        <div class="ticket-top">
-          <span class="ticket-kicker">★ Ready-to-run prebuilt binaries</span>
-          <span class="ticket-os-detected" id="detected-os">Works on macOS · Linux · Windows</span>
-        </div>
-        <div class="ticket-body">
-          <div class="ticket-copy">
-            <h2>Grab <code>lk</code> from GitHub Releases</h2>
-            <p>No compiler needed—download the latest release archive for your OS, drop <code>lk</code> in your PATH, and start editing in seconds.</p>
-          </div>
-          <div class="btn-group">
-            <a class="btn" id="hero-release-btn" href="https://github.com/khajumsanjog/Lekh/releases/latest" target="_blank" rel="noopener">
-              ⬇ Download Latest Release
-            </a>
-            <a class="btn secondary" href="https://github.com/khajumsanjog/Lekh" target="_blank" rel="noopener">
-              View on GitHub ↗
-            </a>
-          </div>
-        </div>
+      <div class="hero-btns">
+        <a class="btn" href="https://github.com/khajumsanjog/Lekh/releases/latest" target="_blank" rel="noopener">⬇ Get Lekh</a>
+        <a class="btn secondary" href="#download">How to install</a>
+        <a class="btn secondary" href="https://github.com/khajumsanjog/Lekh" target="_blank" rel="noopener">GitHub ↗</a>
       </div>
 
       <!-- INTERACTIVE LIVE SIMULATOR -->
@@ -1087,7 +946,7 @@
             <span class="win-dot r" aria-hidden="true"></span>
             <span class="win-dot y" aria-hidden="true"></span>
             <span class="win-dot g" aria-hidden="true"></span>
-            <span>Terminal — <code>lk src/hello.rs</code></span>
+            <span>lekh — hello.rs</span>
             <span class="win-meta" id="sim-theme-badge">Theme: Default</span>
           </div>
           <div class="ed-body">
@@ -1104,7 +963,7 @@
             <div class="ed-minimap" id="sim-map" aria-hidden="true">█</div>
           </div>
           <div class="ed-statusbar">
-            <span id="sim-left"> src/hello.rs</span>
+            <span id="sim-left"> hello.rs</span>
             <span id="sim-right">🦀 Rust  100%  Ln 1/1  Col 1  LF </span>
           </div>
           <div class="ed-toolbar" role="toolbar" aria-label="Simulated editor shortcuts">
@@ -1117,10 +976,10 @@
           </div>
         </div>
         <p class="caption-note">
-          ↑ Live simulator — click inside to type, or try pressing <code>Ctrl+T</code> (5 themes), <code>Ctrl+N</code> (relative line numbers), and <code>Ctrl+K</code>!
+          ↑ It’s a real (tiny) editor. Go on, type something—or try <code>Ctrl+T</code> (5 themes), <code>Ctrl+N</code>, and <code>Ctrl+K</code>.
         </p>
       </div>
-    </div>
+    </header>
 
     <!-- WHAT LEKH DOES -->
     <section id="features">
@@ -1513,18 +1372,14 @@ lk +1 src/main.rs</code></pre>
         }, 1900);
       }
 
-      // Detect visitor OS to highlight the matching install tab & badge
+      // Detect visitor OS to highlight the matching install tab
       var ua = navigator.userAgent || '';
-      var detectedEl = document.getElementById('detected-os');
       var defaultTabId = 'tab-mac';
       if (/Win/i.test(ua)) {
-        detectedEl.textContent = 'Detected Windows · Prebuilt .zip on Releases';
         defaultTabId = 'tab-win';
       } else if (/Linux/i.test(ua) && !/Android/i.test(ua)) {
-        detectedEl.textContent = 'Detected Linux · Prebuilt .tar.gz on Releases';
         defaultTabId = 'tab-linux';
       } else if (/Mac/i.test(ua)) {
-        detectedEl.textContent = 'Detected macOS · Apple Silicon & Intel ready';
         defaultTabId = 'tab-mac';
       }
 
@@ -1660,7 +1515,7 @@ lk +1 src/main.rs</code></pre>
 
         // Status bar matching Lekh's ui.rs format
         var pct = Math.round((cy * 100) / total);
-        leftEl.textContent = ' src/hello.rs' + (modified ? ' [+]' : '');
+        leftEl.textContent = ' hello.rs' + (modified ? ' [+]' : '');
         rightEl.textContent = '🦀 Rust  ' + pct + '%  Ln ' + cy + '/' + total + '  Col ' + cx + '  LF ';
       }
 
