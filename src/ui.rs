@@ -12,7 +12,7 @@ use std::io::{self, Write};
 use unicode_width::UnicodeWidthChar;
 
 const HELP: &[&str] = &[
-    " LEKH  (lk)  -  keys",
+    " LEKH  (lk)  -  Created by Khajumsanjog",
     "",
     " FILE    Ctrl+S save          Ctrl+O save as        Ctrl+Q quit",
     " EDIT    Ctrl+Z undo          Ctrl+Y redo",

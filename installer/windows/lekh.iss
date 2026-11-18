@@ -4,7 +4,7 @@
 ; PowerShell, Windows Terminal, and cmd.exe immediately without Cargo.
 
 #define MyAppName "Lekh"
-#define MyAppVersion "0.1.2"
+#define MyAppVersion "0.1.3"
 #define MyAppPublisher "khajumsanjog"
 #define MyAppURL "https://github.com/khajumsanjog/Lekh"
 

@@ -271,12 +271,14 @@ impl Editor {
         let hidden = loaded.lines.iter().any(|l| l.iter().any(|&c| suspicious(c)));
         let msg = if hidden {
             "WARNING: file contains invisible/bidirectional Unicode characters (shown as red ?)".to_string()
+        } else if path.is_none() {
+            "Lekh — Created by Khajumsanjog · Ctrl+G for help".to_string()
         } else if path.is_some() && !loaded.existed {
-            "New file".to_string()
+            "New file · Lekh created by Khajumsanjog".to_string()
         } else if !loaded.writable {
             "File is read-only: saving will fail".to_string()
         } else {
-            String::new()
+            "Lekh — Created by Khajumsanjog".to_string()
         };
         let lang = syntax::detect(path.as_deref());
         let themes = all_themes();

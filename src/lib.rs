@@ -24,6 +24,7 @@ const DEFAULT_MAX_MB: u64 = 64;
 
 const USAGE: &str = "\
 lekh - a small, fast, safe terminal text editor   (short command: lk)
+Created by Khajumsanjog · https://github.com/khajumsanjog/Lekh
 
 USAGE
     lekh [OPTIONS] [+LINE] [FILE]
@@ -113,6 +114,7 @@ pub fn run() -> i32 {
                 }
                 "-V" | "--version" => {
                     println!("lekh {}", VERSION);
+                    println!("Created by Khajumsanjog · https://github.com/khajumsanjog/Lekh");
                     return 0;
                 }
                 _ => {}
